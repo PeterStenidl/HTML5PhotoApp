@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+	<script src="jquery.js"></script>
+	<script src="custom.js"></script>
+	<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	<script src="http://www.nihilogic.dk/labs/exif/exif.js" type="text/javascript"></script>
+	<script src="http://www.nihilogic.dk/labs/binaryajax/binaryajax.js" type="text/javascript"></script>
+	<!-- <link rel="stylesheet" type="text/css" href="style.css"></link>     -->
+	<script type="text/javascript">
+		// Wrapper around MPL-licensed http://www.nihilogic.dk/labs/binaryajax/binaryajax.js
+		// to support JavaScript typed arrays since binary strings are not supported in IE 10
+		var createBinaryFile = function(uintArray) {
+			var data = new Uint8Array(uintArray);
+			var file = new BinaryFile(data);
+
+			file.getByteAt = function(iOffset) {
+				return data[iOffset];
+			};
+
+			file.getBytesAt = function(iOffset, iLength) {
+				var aBytes = [];
+				for (var i = 0; i < iLength; i++) {
+					aBytes[i] = data[iOffset + i];
+				}
+				return aBytes;
+			};
+
+			file.getLength = function() {
+				return data.length;
+			};
+
+			return file;
+		};
+
+		(function() {
+			$(document).on('ready', function() {
+				$('#cameraLogo_id').click(function() {
+					$('#PhotoPicker').trigger('click');
+					return false;
+				});
+				$('#PhotoPicker').on('change', function(e) {
+					e.preventDefault();
+					if (this.files.length === 0)
+						return;
+					var imageFile = this.files[0];
+					var img = new Image();
+					var url = window.URL ? window.URL : window.webkitURL;
+					img.src = url.createObjectURL(imageFile);
+					img.onload = function(e) {
+						url.revokeObjectURL(this.src);
+
+						var width;
+						var height;
+						var binaryReader = new FileReader();
+						binaryReader.onloadend = function(d) {
+							//alert("imge hei "+ img.height+"\n"+"imge widh "+ img.width+"\n"+ $(window).width()+" " + $(window).height());
+							
+							
+							var exif, transform = "none";
+							exif = EXIF.readFromBinaryFile(createBinaryFile(d.target.result));
+							alert(exif.Orientation+"\n"+img.height+"\n"+img.width);
+							
+							if (exif.Orientation === 8) {
+								width = img.height;
+								height = img.width;
+								transform = "left";
+							} else if (exif.Orientation === 6) {
+								width = img.height;
+								height = img.width;
+								transform = "right";
+							} else if (exif.Orientation === 1) {
+								width = img.width;
+								height = img.height;
+							} else if (exif.Orientation === 3) {
+								width = img.width;
+								height = img.height;
+								transform = "flip";
+							} else {
+								width = img.width;
+								height = img.height;
+							}
+							
+							var MAX_WIDTH = 1024;
+							var MAX_HEIGHT = 768;
+							//alert(exif.Orientation +"  " +width+" \n next "+height );
+							if (width / MAX_WIDTH > height / MAX_HEIGHT) {
+								if (width > MAX_WIDTH) {
+									height *= MAX_WIDTH / width;
+									width = MAX_WIDTH;
+								}
+							} else {
+								if (height > MAX_HEIGHT) {
+									width *= MAX_HEIGHT / height;
+									height = MAX_HEIGHT;
+								}
+							}
+							
+							 
+							var canvas = $('#PhotoEdit')[0];
+							
+							// alert( img.width+"  "+img.height +"\n"+
+									// width+"  "+height +"\n"+
+								// canvas.width+"  "+canvas.height );
+
+							var ctx = canvas.getContext("2d");
+							
+							
+							
+							if (transform === 'left') {
+								// canvas.width = width;
+								// canvas.height = height;
+							
+								canvas.width = height;
+								canvas.height = width;
+								
+								ctx.setTransform(0, -1, 1, 0, 0, height);
+								ctx.drawImage(img, 0, 0, height, width);
+							} else if (transform === 'right') {
+								// canvas.width = width;
+								// canvas.height = height;
+							
+								canvas.width = height;
+								canvas.height = width;
+								
+								ctx.setTransform(0, 1, -1, 0, width, 0);
+								ctx.drawImage(img, 0, 0, height, width);
+							} else if (transform === 'flip') {
+								canvas.width = width;
+								canvas.height = height;
+							
+								// canvas.width = height;
+								// canvas.height = width;
+								
+								ctx.setTransform(1, 0, 0, -1, 0, height);
+								ctx.drawImage(img, 0, 0, width, height);
+							} else {
+								canvas.width = width;
+								canvas.height = height;
+							
+								// canvas.width = height;
+								// canvas.height = width;
+								
+								ctx.setTransform(1, 0, 0, 1, 0, 0);
+								ctx.drawImage(img, 0, 0, width, height);
+							}
+							alert("heighet wieh "+transform +width+"\n"+height);
+							//ctx.setTransform(1, 0, 0, 1, 0, 0);
+						};
+
+						binaryReader.readAsArrayBuffer(imageFile);
+						$('#div1').show();
+						$('#cameraLogo_id').hide();
+						$('#second_line').hide();
+						$('#first_line').hide();
+						$('#last_line').hide();
+					};
+				});
+				// $('#ProcessButton').click(function() {
+					// var canvas = $('#PhotoEdit')[0];
+					// var ctx = canvas.getContext("2d");
+					// var pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+					// var r, g, b, i;
+					// for (var py = 0; py < pixels.height; py += 1) {
+						// for (var px = 0; px < pixels.width; px += 1) {
+							// i = (py * pixels.width + px) * 4;
+							// r = pixels.data[i];
+							// g = pixels.data[i + 1];
+							// b = pixels.data[i + 2];
+							// if (g > 100 && g > r * 1.35 && g > b * 1.6)
+								// pixels.data[i + 3] = 0;
+						// }
+					// }
+					// ctx.putImageData(pixels, 0, 0);
+					// var data = canvas.toDataURL('image/png');
+					// setTimeout(function() {
+						// alert("Modified Image Data: " + data.substring(0, 30) + "...");
+					// }, 100);
+					// // Do something with the image file now...
+					// return false;
+				// });
+			});
+		})();
+	</script>
+	<body background="images/sfp_collage.jpg" style="margin:0px; padding:0px; overflow:hidden;" >
+
+		<div style="background-color:#000000; height:100%; width: 100%; z-index:2; position: absolute; opacity: 0.5; top: 0px;" ></div>
+
+		<div style="height:100%; width: 100%; z-index:3; top: 0px; position: relative;">
+			<div id="wrapper" style="width:100%; text-align:center; z-index:4;">
+				<img id="first_line" src="images/tumblr_static_savefamilyphotos_logo_light.png" width="50%" />
+			</div>
+			<!-- <h3 id="first_line" align="center" style="color:#ffffff;">Savefamilyphotos</h3> -->
+
+			<div style="width: 0; height: 0; overflow: hidden;">
+				<input type="file" id="PhotoPicker" accept="image/*" capture="camera">
+				<!-- <input type="file" id="PhotoPicker" accept="image/*;capture=camera"/> -->
+			</div>
+			<div id="wrapper" style="width:100%; text-align:center; z-index:4;">
+				<img id="cameraLogo_id" class ="hidden" src ="images/camera.png" align="middle" width=50% onclick="option_Menu()"/>
+			</div>
+
+			<h1 id="second_line" align="center" style="color:#ffffff;" >Gat your photo</h1>
+
+			<h5 id="last_line" align="center" style="color:#ffffff;" >By Proceeding. you accept our terms of use</h5>
+			
+		</div>
+
+		<!-- Canvas for Display Getting image from Device Camera -->
+		<div style="height:100%; width: 100%; z-index:4; position: relative; text-align:center;">
+
+			<canvas  id="PhotoEdit" style="position: relative; text-align:center; top: 10px; ">
+				<p>
+					<font color="white">This browser does not support the required features.
+						Please try <a href="http://windows.microsoft.com/en-us/internet-explorer/products/ie/home">Internet Explorer 10</a>,
+						or a current version of <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>, <a href="http://www.google.com/chrome">Chrome</a>, or <a href="http://www.apple.com/safari/">Safari</a>.</font>
+				</p>
+			</canvas>
+		</div>
+
+		<!-- Canvas for Display Getting image from Device Camera -->
+
+		<!-- After Taken photographs from camera of gallery Display Help page -->
+		<div id="div1" style="background-color:#000000; height:100%; width: 100%; z-index:5; position: absolute; opacity: 0.6; top: 0px;" hidden="true" >
+
+			<img style="height: 15%; padding: 10px"; src="images/pinch.png" />
+			<h4 style="color: #ffffff;text-align:center;">Step 1: Crop your photo</h4>
+			<h1 style="color: #ffffff;text-align:center;">Drag the photo into position</h1>
+			<input type="button" id="btn" value='NEXT' style="position:absolute; left:47%;z-index:9999;padding:2%;border-radius:15%;color:#FFF;border-color:#FFF; border-width:4px;background-color:transparent;font-size:150%;">
+
+		</div>
+
+		<!-- <div id="div1" style="height:100%; background:red; width: 100%; z-index:4; position: relative;">
+		<h2> Help text </h2>
+		<input type="button" id="btn" value='Magic' style="position:absolute;top:48%;left:48%;z-index:9999;padding:20px;border-radius:50%;border:none;background:#000;color:#FFF">
+		</div> -->
+
+		<!-- After Taken photographs from camera of gallery Display Help page -->
+		<div id="hidden_div1" style="background-color:#000000; height:100%; width: 100%; z-index:4;right:-100%;position:absolute; opacity: 0.6; top: 0px; " hidden="true" >
+			<img style="left: 100px; height: 15%; padding: 10px" src="images/pointer.png" />
+			<h4 style="color: #ffffff;text-align:center;">Step 1: Crop your photo</h4>
+			<h1 style="color: #ffffff;text-align:center;">Drag the photo into position</h1>
+			<input type="button" id="btn1" value='OK' style="position:absolute;left:47%; z-index:9999;padding:2%;border-radius:15%;color:#FFF;border-color:#FFF; border-width:4px;background-color:transparent; font-size:150%;">
+			
+		</div>
+
+	</body>
+
+</html>

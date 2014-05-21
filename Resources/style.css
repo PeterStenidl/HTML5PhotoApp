@@ -1,0 +1,50 @@
+body
+{
+	background-image:url(image.jpg);
+	margin: 0;
+	padding: 0;
+}
+.fl
+{
+	float:left;
+}
+
+
+.fr
+{
+	float:right;
+}
+
+
+.header
+{
+	background-color: #000000;
+	opacity: 0.5;
+	height: 100%;	
+
+}
+.text
+{
+	
+color:#000000;
+	
+}
+#logo {
+  position: absolute; // reposition logo from the natural layout
+  left: 75px;
+  top: 0px;
+  width: 300px;
+  height: 200px;
+  z-index: 2;
+}
+
+#content {
+  margin-top: 10px; // provide buffer for logo
+   z-index: 3;
+   opacity: 0.5;
+}
+
+#links {
+  height: 75px;
+  margin-left: 400px; // flush links (with a 25px "padding") right of logo
+}
