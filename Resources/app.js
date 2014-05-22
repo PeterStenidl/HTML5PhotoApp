@@ -30,6 +30,10 @@ var win1 = Titanium.UI.createWindow({
 	// );   
 // 	
 // });
+Ti.App.Properties.addEventListener('app:fromWebView', function(e) {
+    alert(e.message);
+});
+
 var webView = Ti.UI.createWebView({
 
 	url : "app_html.html",

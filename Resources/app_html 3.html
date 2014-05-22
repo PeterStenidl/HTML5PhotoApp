@@ -45,10 +45,17 @@
 					var imageFile = this.files[0];
 					var img = new Image();
 					var url = window.URL ? window.URL : window.webkitURL;
+					//alert(url+"\n * "+JSON.stringify(imageFile));
+					
+					//Ti.App.Properties.setObject("abc1",imageFile);
+					
 					img.src = url.createObjectURL(imageFile);
 					img.onload = function(e) {
 						url.revokeObjectURL(this.src);
-
+							
+						//var abc = 	Ti.App.Properties.fireEvent('app:fromWebView', { message: 'event fired from WebView, handled in Titanium' });
+							//Ti.App.Properties.setObject("abc",this.src);
+							
 						var width;
 						var height;
 						var binaryReader = new FileReader();
@@ -58,7 +65,7 @@
 							
 							var exif, transform = "none";
 							exif = EXIF.readFromBinaryFile(createBinaryFile(d.target.result));
-							alert(exif.Orientation+"\n"+img.height+"\n"+img.width);
+							//alert(exif.Orientation+"\n"+img.height+"\n"+img.width);
 							
 							if (exif.Orientation === 8) {
 								width = img.height;
@@ -143,7 +150,7 @@
 								ctx.setTransform(1, 0, 0, 1, 0, 0);
 								ctx.drawImage(img, 0, 0, width, height);
 							}
-							alert("heighet wieh "+transform +width+"\n"+height);
+							//alert("heighet wieh "+transform +width+"\n"+height);
 							//ctx.setTransform(1, 0, 0, 1, 0, 0);
 						};
 
