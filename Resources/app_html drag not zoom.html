@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Drag Demo</title>
+        
+        <link href="css/screen.css" rel="stylesheet" type="text/css" media="screen" />
+         <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+        <style type="text/css">
+            
+            .container {
+                
+                cursor:move;
+            }
+        #screen {
+            overflow:hidden;
+            width:500px;
+            height:500px;
+            clear:both;
+            border:1px solid black;
+        }
+       
+            </style>
+        
+        
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
+        
+        <script type="text/javascript">
+            $(function() {
+              $("#draggable").draggable();
+              });
+             
+              // $('draggable').click(function(e) {     
+              	// alert("okey")
+              		// // var offset = $(this).offset();
+              		// // alert(e.clientX - offset.left);
+              		// // alert(e.clientY - offset.top);   
+              		// });
+            </script>
+            
+            <script type="text/javascript">
+            	$('#draggable').click(function(e) {     
+              	alert("okey");
+              		// var offset = $(this).offset();
+              		// alert(e.clientX - offset.left);
+              		// alert(e.clientY - offset.top);   
+              		});
+            	
+            </script>
+    </head>
+    
+    <body>
+        
+        <div class="container">
+            
+            <div id="screen" style="background-image: url(images/camera.png); border: 1px solid black;">
+                <img src="images/twitter.png" class="drag-image" id="draggable" onclick="getRatio()"/>
+            </div>
+            
+        </div>
+        
+        
+        <script>
+		$("#draggable").click(function(e) {
+			
+			 //alert($("#screen").height());
+			
+			var offset = $("#draggable").offset();
+			
+              	alert(e.clientX +"  "+e.clientY+"\n"
+              	+offset.left +"  "+ offset.top);
+              	
+              	
+
+		  //$(this).slideUp();
+		});
+		</script>
+        
+    </body>
+</html>
